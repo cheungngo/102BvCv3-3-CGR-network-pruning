@@ -1,0 +1,13 @@
+mode,component,n_targets,observed_delta,null_mean,null_std,z_score,p_value
+with_metabolic,Core_Piracetam,4,0.02812,0.00516,0.00606,3.788,0.0199
+with_metabolic,cAMP_Sceletium,4,0.0184,0.00488,0.00438,3.088,0.005
+with_metabolic,Core_DXM,9,0.0433,0.01519,0.01356,2.073,0.0746
+with_metabolic,NAC,4,0.00492,0.00232,0.00184,1.412,0.1095
+with_metabolic,Bacopa,4,0.00748,0.00327,0.00299,1.405,0.1144
+with_metabolic,NMN,4,0.00599,0.00301,0.00314,0.948,0.2139
+with_metabolic,L_Glutamine,11,0.01404,0.00927,0.00895,0.533,0.194
+with_metabolic,Citicoline,2,1e-05,6e-05,0.00018,-0.269,0.2438
+with_metabolic,Omega3_DHA,9,0.00379,0.00529,0.00356,-0.423,0.5721
+with_metabolic,cAMP_Forskolin,2,0.00146,0.00494,0.00791,-0.44,0.403
+with_metabolic,Core_CYP2D6i,7,1e-05,0.00117,0.00245,-0.474,0.7612
+with_metabolic,Fisetin,20,0.00459,0.02707,0.01433,-1.568,1.0

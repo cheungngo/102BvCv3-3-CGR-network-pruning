@@ -1,0 +1,13 @@
+component,query,chembl_id,n_raw_targets
+Core_DXM,dextromethorphan,CHEMBL52440,5
+Core_Piracetam,piracetam,CHEMBL36715,0
+Core_CYP2D6i,bupropion,CHEMBL894,6
+Bacopa,bacoside A,CHEMBL4297945,0
+cAMP_Forskolin,forskolin,CHEMBL4782169,0
+cAMP_Sceletium,mesembrine,,0
+Citicoline,citicoline,CHEMBL1231700,0
+Omega3_DHA,docosahexaenoic acid,CHEMBL367149,2
+Fisetin,fisetin,CHEMBL31574,15
+L_Glutamine,L-glutamine,CHEMBL930,0
+NAC,acetylcysteine,CHEMBL600,0
+NMN,nicotinamide mononucleotide,CHEMBL1140,1

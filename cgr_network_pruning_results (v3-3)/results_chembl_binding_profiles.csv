@@ -1,0 +1,40 @@
+symbol,pchembl,target_chembl_id,target_name,component
+CYP2D6,7.325,CHEMBL289,Cytochrome P450 2D6,Core_DXM
+GRIN1,5.98,CHEMBL1907604,Glutamate NMDA receptor; GRIN1/GRIN2A,Core_DXM
+GRIN2A,5.98,CHEMBL1907604,Glutamate NMDA receptor; GRIN1/GRIN2A,Core_DXM
+GRIN2B,5.78,CHEMBL2094124,Glutamate [NMDA] receptor,Core_DXM
+GRIN2C,5.78,CHEMBL2094124,Glutamate [NMDA] receptor,Core_DXM
+GRIN2D,5.78,CHEMBL2094124,Glutamate [NMDA] receptor,Core_DXM
+GRIN3A,5.78,CHEMBL2094124,Glutamate [NMDA] receptor,Core_DXM
+GRIN3B,5.78,CHEMBL2094124,Glutamate [NMDA] receptor,Core_DXM
+SIGMAR1,6.46,CHEMBL287,Sigma non-opioid intracellular receptor 1,Core_DXM
+SLC6A4,8.705,CHEMBL228,Sodium-dependent serotonin transporter,Core_DXM
+CHRNA3,6.0,CHEMBL1907594,Neuronal acetylcholine receptor; alpha3/beta4,Core_CYP2D6i
+CHRNB2,6.0,CHEMBL2109234,Neuronal acetylcholine receptor; alpha3/beta2,Core_CYP2D6i
+CHRNB4,5.75,CHEMBL1907594,Neuronal acetylcholine receptor; alpha3/beta4,Core_CYP2D6i
+CYP2C19,5.7,CHEMBL3622,Cytochrome P450 2C19,Core_CYP2D6i
+ITGA5,5.75,CHEMBL3885595,Integrin alpha-5/Neuronal acetylcholine receptor subunit alpha-3/Neuronal acetylcholine receptor subunit beta-2/Neuronal acetylcholine receptor subunit beta-4,Core_CYP2D6i
+SLC6A2,5.765000000000001,CHEMBL222,Sodium-dependent noradrenaline transporter,Core_CYP2D6i
+SLC6A3,6.06,CHEMBL238,Sodium-dependent dopamine transporter,Core_CYP2D6i
+OXER1,5.7,CHEMBL1628461,Oxoeicosanoid receptor 1,Omega3_DHA
+ACHE,7.92,CHEMBL220,Acetylcholinesterase,Fisetin
+ALOX12,6.02,CHEMBL3687,Polyunsaturated fatty acid lipoxygenase ALOX12,Fisetin
+ALOX15,5.85,CHEMBL2903,Polyunsaturated fatty acid lipoxygenase ALOX15,Fisetin
+CCNB1,6.1,CHEMBL2094127,Cyclin-dependent kinase 1/cyclin B,Fisetin
+CCNB2,6.1,CHEMBL2094127,Cyclin-dependent kinase 1/cyclin B,Fisetin
+CCNB3,6.1,CHEMBL2094127,Cyclin-dependent kinase 1/cyclin B,Fisetin
+CDK1,6.1,CHEMBL2094127,Cyclin-dependent kinase 1/cyclin B,Fisetin
+CDK5,6.24,CHEMBL1907600,Cyclin-dependent kinase 5/CDK5 activator 1,Fisetin
+CDK5R1,6.24,CHEMBL1907600,Cyclin-dependent kinase 5/CDK5 activator 1,Fisetin
+CDK6,6.07,CHEMBL2508,Cyclin-dependent kinase 6,Fisetin
+CSNK2A1,6.615,CHEMBL2095191,Casein kinase II,Fisetin
+CSNK2A2,6.615,CHEMBL2095191,Casein kinase II,Fisetin
+CSNK2A3,6.46,CHEMBL3832943,Casein kinase 2,Fisetin
+CSNK2B,6.615,CHEMBL2095191,Casein kinase II,Fisetin
+GSK3A,6.38,CHEMBL2095188,Glycogen synthase kinase-3,Fisetin
+GSK3B,6.38,CHEMBL2095188,Glycogen synthase kinase-3,Fisetin
+HDAC6,5.64,CHEMBL1865,Protein deacetylase HDAC6,Fisetin
+PKM,6.05,CHEMBL1075189,Pyruvate kinase PKM,Fisetin
+RPS6KA2,6.05,CHEMBL3906,Ribosomal protein S6 kinase alpha-2,Fisetin
+RPS6KA3,5.56,CHEMBL2345,Ribosomal protein S6 kinase alpha-3,Fisetin
+SIRT2,5.92,CHEMBL4462,NAD-dependent protein deacetylase sirtuin-2,NMN

@@ -1,0 +1,207 @@
+====================================================================================================
+CGR NETWORK PRUNING · LOO ABLATION · FDA REPLACEMENT SCREEN — DETAILED RUN SUMMARY
+====================================================================================================
+Generated         : 2026-11-25 06:52:10 UTC
+Pipeline version  : CGR-Network-Pruning/2.0 (publication-grade, cached, 3-mode)
+
+----------------------------------------------------------------------------------------------------
+0. METHODS OVERVIEW
+----------------------------------------------------------------------------------------------------
+This pipeline queries ChEMBL (bioactivity + curated mechanisms), Open Targets (genetic
+association weights) and STRING (human PPI, score cutoff below) live, then runs an
+affinity-weighted leave-one-out (LOO) ablation of the CGR stack across MDD, BIP, SCZ and
+OCD. Component importance = mean 'unique_delta' = drop in disorder-weighted module
+coverage when a component is removed. Coverage uses network proximity from each disorder
+anchor to the nearest drug target, scaled by target affinity:
+
+    eff_distance = shortest_path(anchor, target) / max(1, pChEMBL - 4.5)
+    coverage     = Σ_anchor [ disorder_score · 1/(1+min_eff_distance) ] / Σ_anchor disorder_score
+
+Three sensitivity modes are reported:
+  • binding_only            : ChEMBL pChEMBL >= cutoff targets only.
+  • with_metabolic          : adds curated mechanistic/metabolic/structural targets.
+  • with_metabolic_and_pk   : as above, PLUS a CYP2D6 PK gate — dropping the CYP2D6
+                              inhibitor attenuates DXM target potency by PK_DXM_PENALTY,
+                              quantifying the inhibitor's true functional indispensability.
+
+----------------------------------------------------------------------------------------------------
+1. CONFIGURATION
+----------------------------------------------------------------------------------------------------
+  PCHEMBL_CUTOFF            = 5.5
+  STRING_SCORE_CUTOFF      = 700
+  CYP2D6_INHIBITOR         = bupropion
+  METABOLIC_PSEUDO_PCHEMBL = 6.0
+  PSEUDO_PCHEMBL_GRID      = [5.5, 6.0, 6.5]
+  PK_DXM_PENALTY           = 1.0
+  N_PERM                   = 200
+  FDA_ACT_PCHEMBL_MIN      = 6.5
+  RANDOM_SEED              = 1234
+  Anchor genes (121 set)   = 121
+  Disorders                = MDD (MONDO_0002009), BIP (MONDO_0004985), SCZ (MONDO_0005090), OCD (MONDO_0008114)
+
+----------------------------------------------------------------------------------------------------
+2. ChEMBL COMPOUND LOOKUP
+----------------------------------------------------------------------------------------------------
+  Binding-active components : 5 / 12
+  Zero binding-hit (pChEMBL >= 5.5) components (RETAINED, not dropped):
+    ['Core_Piracetam', 'Bacopa', 'cAMP_Forskolin', 'cAMP_Sceletium', 'Citicoline', 'L_Glutamine', 'NAC']
+  -> Zero-hit naturals (Forskolin/Sceletium/Bacopa) re-enter via CURATED_MECHANISTIC_TARGETS
+     and remain in all LOO tables (n_targets=0, unique_delta=0 in binding_only mode).
+  Heteromeric complexes: ALL constituent gene symbols are retained (explode before groupby),
+  so e.g. GRIN1/GRIN2A NMDA complexes no longer collapse to a single subunit.
+
+  Lookup summary:
+         component                       query     chembl_id  n_raw_targets
+          Core_DXM            dextromethorphan   CHEMBL52440              5
+    Core_Piracetam                   piracetam   CHEMBL36715              0
+      Core_CYP2D6i                   bupropion     CHEMBL894              6
+            Bacopa                  bacoside A CHEMBL4297945              0
+    cAMP_Forskolin                   forskolin CHEMBL4782169              0
+    cAMP_Sceletium                  mesembrine          None              0
+        Citicoline                  citicoline CHEMBL1231700              0
+        Omega3_DHA        docosahexaenoic acid  CHEMBL367149              2
+           Fisetin                     fisetin   CHEMBL31574             15
+       L_Glutamine                 L-glutamine     CHEMBL930              0
+               NAC              acetylcysteine     CHEMBL600              0
+               NMN nicotinamide mononucleotide    CHEMBL1140              1
+
+  Total resolved component–target pairs: 39
+
+----------------------------------------------------------------------------------------------------
+3. OPEN TARGETS WEIGHTS & STRING NETWORK
+----------------------------------------------------------------------------------------------------
+  MDD: 73/121 anchors scored; top5 = GRIN2A:0.675, SLC6A4:0.637, GRIN2B:0.608, GRIN1:0.606, GRIN2D:0.600
+  BIP: 71/121 anchors scored; top5 = CACNA1C:0.597, SLC6A4:0.590, GRIN2A:0.584, GRM3:0.443, GRIN2B:0.414
+  SCZ: 65/121 anchors scored; top5 = SHANK3:0.703, GRIN2A:0.642, GRM3:0.612, CACNA1C:0.551, NRXN1:0.539
+  OCD: 53/121 anchors scored; top5 = SLC6A4:0.692, GRIN2A:0.446, CACNA1C:0.412, GRM3:0.394, GRIA4:0.388
+
+  STRING graph: 145 nodes, 904 edges (required_score >= 700).
+  Anchors present in graph: 118/121.
+
+----------------------------------------------------------------------------------------------------
+4. CGR-LITE COMPONENT RANKING (mean unique_delta across 4 disorders)
+----------------------------------------------------------------------------------------------------
+  Higher mean unique_delta => component is more irreplaceable (its removal costs more coverage).
+
+           dropped mean_delta_with_metabolic mean_delta_with_pk mean_delta_binding_only
+          Core_DXM                   0.04330            0.04330                 0.16068
+      Core_CYP2D6i                   0.00002            0.03309                 0.00005
+    Core_Piracetam                   0.02813            0.02813                 0.00000
+    cAMP_Sceletium                   0.01840            0.01840                 0.00000
+       L_Glutamine                   0.01404            0.01404                 0.00000
+            Bacopa                   0.00749            0.00749                 0.00000
+               NMN                   0.00600            0.00600                 0.00005
+               NAC                   0.00492            0.00492                 0.00000
+           Fisetin                   0.00459            0.00459                 0.00586
+        Omega3_DHA                   0.00379            0.00379                 0.00000
+    cAMP_Forskolin                   0.00146            0.00146                 0.00000
+        Citicoline                   0.00001            0.00001                 0.00000
+
+  Per-mode, per-disorder LOO tables are saved as:
+    results_loo_ablation_binding_only.csv
+    results_loo_ablation_with_metabolic.csv
+    results_loo_ablation_with_metabolic_and_pk.csv
+
+  PK GATE EFFECT on Core_CYP2D6i (mean unique_delta): binding_only=0.00005  ->  with_metabolic_and_pk=0.03309
+  (The PK mode recovers the CYP2D6 inhibitor's functional role that static proximity misses.)
+
+----------------------------------------------------------------------------------------------------
+5. PSEUDO-pChEMBL SENSITIVITY (rank stability)
+----------------------------------------------------------------------------------------------------
+  Sweep values: [5.5, 6.0, 6.5]. 'rank_range' = 0 means the component's rank is
+  invariant to the assumed curated affinity (robust); large rank_range = artifact risk.
+
+           dropped     5.5     6.0     6.5  rank@5.5  rank@6.0  rank@6.5  rank_range
+          Core_DXM 0.07386 0.04330 0.03238         1         1         1           0
+    Core_Piracetam 0.02373 0.02813 0.02406         2         2         2           0
+    cAMP_Sceletium 0.01553 0.01840 0.01574         3         3         3           0
+       L_Glutamine 0.01185 0.01404 0.01332         4         4         4           0
+            Bacopa 0.00556 0.00749 0.00821         5         5         6           1
+               NMN 0.00487 0.00600 0.00672         6         6         8           2
+               NAC 0.00322 0.00492 0.00877         8         7         5           3
+           Fisetin 0.00459 0.00459 0.00304         7         8         9           2
+        Omega3_DHA 0.00313 0.00379 0.00685         9         9         7           2
+    cAMP_Forskolin 0.00123 0.00146 0.00125        10        10        10           0
+      Core_CYP2D6i 0.00002 0.00002 0.00000        11        11        12           1
+        Citicoline 0.00001 0.00001 0.00002        12        12        11           1
+
+  Rank-invariant components : ['Core_DXM', 'Core_Piracetam', 'cAMP_Sceletium', 'L_Glutamine', 'cAMP_Forskolin']
+  Rank-volatile (>=2) comps : ['NMN', 'NAC', 'Fisetin', 'Omega3_DHA']
+
+----------------------------------------------------------------------------------------------------
+6. DEGREE-MATCHED PERMUTATION NULL (empirical z / p)
+----------------------------------------------------------------------------------------------------
+  Each component's observed marginal delta is compared to N=200 random target sets of
+  equal size, drawn degree-bin-matched from the STRING graph. z>0 & p<0.05 => the component
+  contributes more coverage than expected from its target-set size/degree alone.
+
+  [with_metabolic]
+              mode      component  n_targets observed_delta null_mean null_std z_score p_value
+    with_metabolic Core_Piracetam          4         0.0281    0.0052   0.0061  3.7880  0.0199
+    with_metabolic cAMP_Sceletium          4         0.0184    0.0049   0.0044  3.0880  0.0050
+    with_metabolic       Core_DXM          9         0.0433    0.0152   0.0136  2.0730  0.0746
+    with_metabolic            NAC          4         0.0049    0.0023   0.0018  1.4120  0.1095
+    with_metabolic         Bacopa          4         0.0075    0.0033   0.0030  1.4050  0.1144
+    with_metabolic            NMN          4         0.0060    0.0030   0.0031  0.9480  0.2139
+    with_metabolic    L_Glutamine         11         0.0140    0.0093   0.0089  0.5330  0.1940
+    with_metabolic     Citicoline          2         0.0000    0.0001   0.0002 -0.2690  0.2438
+    with_metabolic     Omega3_DHA          9         0.0038    0.0053   0.0036 -0.4230  0.5721
+    with_metabolic cAMP_Forskolin          2         0.0015    0.0049   0.0079 -0.4400  0.4030
+    with_metabolic   Core_CYP2D6i          7         0.0000    0.0012   0.0024 -0.4740  0.7612
+    with_metabolic        Fisetin         20         0.0046    0.0271   0.0143 -1.5680  1.0000
+
+  [with_metabolic_and_pk]
+                     mode      component  n_targets observed_delta null_mean null_std z_score p_value
+    with_metabolic_and_pk Core_Piracetam          4         0.0281    0.0052   0.0061  3.7880  0.0199
+    with_metabolic_and_pk cAMP_Sceletium          4         0.0184    0.0049   0.0044  3.0880  0.0050
+    with_metabolic_and_pk       Core_DXM          9         0.0433    0.0152   0.0136  2.0730  0.0746
+    with_metabolic_and_pk   Core_CYP2D6i          7         0.0331    0.0103   0.0149  1.5310  0.2040
+    with_metabolic_and_pk            NAC          4         0.0049    0.0023   0.0018  1.4120  0.1095
+    with_metabolic_and_pk         Bacopa          4         0.0075    0.0033   0.0030  1.4050  0.1144
+    with_metabolic_and_pk            NMN          4         0.0060    0.0030   0.0031  0.9480  0.2139
+    with_metabolic_and_pk    L_Glutamine         11         0.0140    0.0093   0.0089  0.5330  0.1940
+    with_metabolic_and_pk     Citicoline          2         0.0000    0.0001   0.0002 -0.2690  0.2438
+    with_metabolic_and_pk     Omega3_DHA          9         0.0038    0.0053   0.0036 -0.4230  0.5721
+    with_metabolic_and_pk cAMP_Forskolin          2         0.0015    0.0049   0.0079 -0.4400  0.4030
+    with_metabolic_and_pk        Fisetin         20         0.0046    0.0271   0.0143 -1.5680  1.0000
+
+  Significant (p<=0.05, z>0, with_metabolic): ['Core_Piracetam', 'cAMP_Sceletium']
+
+----------------------------------------------------------------------------------------------------
+7. FDA (PHASE-4) SINGLE-MOLECULE MULTI-TARGET REPLACEMENT SCREEN
+----------------------------------------------------------------------------------------------------
+  Screen targets (CGR-target ∩ 121-anchor intersection, top by affinity): ['GRIN2A', 'SLC6A4', 'GRIN2B', 'GRIN1', 'GRIN2D', 'GRIN2C', 'GRIA1', 'GRIA3', 'PDE4B', 'GRIA4', 'GRIA2', 'SIGMAR1']
+  Sourcing: ChEMBL mechanism.json (curated clinical links) + descending-sorted activity.json
+            (pChEMBL >= 6.5); phase filter is type-safe float(max_phase)>=4.0.
+  Multi-target molecules examined: 33
+  Phase-4 candidates found       : 2
+
+        chembl_id                     drug_name max_phase  n_targets     targets_hit mean_cov_4dis cov_MDD cov_BIP cov_SCZ cov_OCD
+    CHEMBL1201461   DEXTROMETHORPHAN POLISTIREX    4.0000          2 GRIN2A, SIGMAR1        0.6019  0.5791  0.6218  0.5707  0.6362
+    CHEMBL1256818 DEXTROMETHORPHAN HYDROBROMIDE    4.0000          2 GRIN2A, SIGMAR1        0.6019  0.5791  0.6218  0.5707  0.6362
+
+----------------------------------------------------------------------------------------------------
+8. OUTPUT FILES
+----------------------------------------------------------------------------------------------------
+  results/results_cgr_lite_summary.csv
+  results/results_chembl_binding_profiles.csv
+  results/results_chembl_lookup_summary.csv
+  results/results_fda_replacements.csv
+  results/results_loo_ablation_binding_only.csv
+  results/results_loo_ablation_with_metabolic.csv
+  results/results_loo_ablation_with_metabolic_and_pk.csv
+  results/results_permutation_null_with_metabolic.csv
+  results/results_permutation_null_with_metabolic_and_pk.csv
+  results/results_pseudo_pchembl_sensitivity.csv
+  CGR_DETAILED_SUMMARY.txt  (this file)
+
+----------------------------------------------------------------------------------------------------
+9. CAVEATS
+----------------------------------------------------------------------------------------------------
+  • Curated mechanistic pChEMBL values are modelling assumptions, not measured affinities;
+    see Section 5 for their effect on ranks.
+  • STRING proximity is a static, undirected structural proxy; the PK mode (Section 4) is a
+    first-order correction for one known PK interaction (CYP2D6) only.
+  • Open Targets scores aggregate heterogeneous evidence; absolute magnitudes are relative.
+  • FDA 'replacement' candidates are network/affinity hypotheses, NOT clinical recommendations.
+====================================================================================================
